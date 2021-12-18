@@ -13,13 +13,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract WizardsAndWagons is ERC721Enumerable, Ownable, ERC721Burnable, ERC721Pausable {
+contract CryptoQuestDM is ERC721Enumerable, Ownable, ERC721Burnable, ERC721Pausable {
 
     using SafeMath for uint256;
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdTracker;
-    bool private sale;
+    bool public sale = false;
 
     uint256 public constant MAX_ITEMS = 5000;
     uint256 public constant MAX_MINT = 10;
@@ -31,7 +31,7 @@ contract WizardsAndWagons is ERC721Enumerable, Ownable, ERC721Burnable, ERC721Pa
     event CreateNft(uint256 indexed id);
     event AttributeChanged(uint256 indexed _tokenId, string _key, string _value);
 
-    constructor(string memory baseURI) ERC721("Wizards & Wagons", "WNW") {
+    constructor(string memory baseURI) ERC721("Crypto Quest: Dawn of Man", "CQDM") {
         setBaseURI(baseURI);
         sale = false;
     }
@@ -55,7 +55,7 @@ contract WizardsAndWagons is ERC721Enumerable, Ownable, ERC721Burnable, ERC721Pa
 
     function mint(address _to, uint256 _count) public payable saleIsOpen {
         uint256 total = _totalSupply();
-        require(sale == true, "Sale has not yet started");
+        require(sale == false, "Sale has not yet started");
         require(total <= MAX_ITEMS*batch, "Sale ended");
         require(total + _count <= MAX_ITEMS*batch, "Max limit");
         require(_count <= MAX_MINT, "Exceeds number");
@@ -78,8 +78,8 @@ contract WizardsAndWagons is ERC721Enumerable, Ownable, ERC721Burnable, ERC721Pa
         return basePrice.mul(_count);
     }
 
-    function changePrice(uint256 price) public onlyOwner {
-        basePrice = price;
+    function changePrice(uint256 priceToChange) public onlyOwner {
+        basePrice = priceToChange;
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
@@ -116,15 +116,15 @@ contract WizardsAndWagons is ERC721Enumerable, Ownable, ERC721Burnable, ERC721Pa
         sale = !sale;
     }
 
-    function changeAttribute(uint256 tokenId, string memory key, string memory value) public payable {
-        address owner = ERC721.ownerOf(tokenId);
-        require(_msgSender() == owner, "This is not your NFT.");
+    // function changeAttribute(uint256 tokenId, string memory key, string memory value) public payable {
+    //     address owner = ERC721.ownerOf(tokenId);
+    //     require(_msgSender() == owner, "This is not your NFT.");
 
-        // uint256 amountPaid = msg.value;
-        // require(amountPaid == RENAME_PRICE, "There is a price for changing your attributes.");
+    //     // uint256 amountPaid = msg.value;
+    //     // require(amountPaid == RENAME_PRICE, "There is a price for changing your attributes.");
 
-        emit AttributeChanged(tokenId, key, value);
-    }
+    //     emit AttributeChanged(tokenId, key, value);
+    // }
 
     function withdrawAll() public payable onlyOwner {
         uint256 balance = address(this).balance;
