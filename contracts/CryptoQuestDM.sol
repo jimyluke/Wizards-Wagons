@@ -45,6 +45,28 @@ contract CryptoQuestDM is ERC721Enumerable, Ownable, ERC721Burnable, ERC721Pausa
         _;
     }
 
+    mapping(address => bool) whitelistedAddresses;
+
+    modifier onlyOwner2() {
+      require(msg.sender == devAddress, "Ownable: caller is not the owner");
+      _;
+    }
+
+    modifier isWhitelisted(address _address) {
+      require(whitelistedAddresses[_address], "Whitelist: You need to be whitelisted");
+      _;
+    }
+
+    function addUser(address _addressToWhitelist) public onlyOwner {
+      whitelistedAddresses[_addressToWhitelist] = true;
+    }
+
+    function verifyUser(address _whitelistedAddress) public view returns(bool) {
+      bool userIsWhitelisted = whitelistedAddresses[_whitelistedAddress];
+      return userIsWhitelisted;
+    }
+
+
     function _totalSupply() internal view returns (uint) {
         return _tokenIdTracker.current();
     }
@@ -53,6 +75,9 @@ contract CryptoQuestDM is ERC721Enumerable, Ownable, ERC721Burnable, ERC721Pausa
         return _totalSupply();
     }
 
+    function allowToMint() public view isWhitelisted(msg.sender) returns(bool){
+      return (true);
+    }
     function mint(address _to, uint256 _count) public payable saleIsOpen {
         uint256 total = _totalSupply();
         require(sale == false, "Sale has not yet started");
